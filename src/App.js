@@ -15,7 +15,7 @@ function App() {
       try {
         const response = await axios.post(
           'http://localhost:5000/api/refresh',
-          {},  // Empty body since you're sending the token via cookie
+          {},  
           {
               withCredentials: true,
               headers: {
@@ -23,9 +23,9 @@ function App() {
               }
           }
       );
-        dispatch(authActions.setToken(response.data.token)); // Update the token in Redux store
-        dispatch(authActions.login()); // Set isLoggedIn to true
-        dispatch(authActions.setId(response.data.data.user._id)); // Set user ID in Redux store
+        dispatch(authActions.setToken(response.data.token)); 
+        dispatch(authActions.login()); 
+        dispatch(authActions.setId(response.data.data.user._id));
       } catch (error) {
         if (error.response) {
           console.error('Error refreshing token:', error.response.data);
