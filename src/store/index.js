@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialAuthState = {
-  userId: null,
+  userId: "",
   isLoggedIn: false,
   userToken: "",
 };

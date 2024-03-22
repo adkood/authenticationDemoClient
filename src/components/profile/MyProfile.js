@@ -58,8 +58,16 @@ const MyProfile = () => {
         });
     };
 
-    const handleLogout = () => {
-        dispatch(authActions.logout());
+    const handleLogout = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/logout');
+            console.log(response);
+            dispatch(authActions.setToken(""));
+            dispatch(authActions.setId(""));
+            dispatch(authActions.logout()); 
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
     };
 
     return (
