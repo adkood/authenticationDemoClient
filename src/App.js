@@ -13,9 +13,7 @@ function App() {
   useEffect(() => {
     const refreshAuthToken = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/refresh', {
-          withCredentials: true
-        });
+        const response = await axios.post('http://localhost:5000/api/refresh', {}, { withCredentials: true });
         dispatch(authActions.setToken(response.data.token)); // Update the token in Redux store
         dispatch(authActions.login()); // Set isLoggedIn to true
         dispatch(authActions.setId(response.data.data.user._id)); // Set user ID in Redux store
@@ -29,7 +27,7 @@ function App() {
     };
 
     refreshAuthToken();
-}, []);
+  }, []);
 
 
   return (
