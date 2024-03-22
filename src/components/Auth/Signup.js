@@ -35,6 +35,8 @@ function Signup() {
         email: formData.email,
         password: formData.password,
         passwordConfirm: formData.confirmPassword,
+      },{
+        withCredentials: true
       });
 
       if (response.status === 201) {

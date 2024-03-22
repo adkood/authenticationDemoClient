@@ -21,6 +21,8 @@ const MyProfile = () => {
                     headers: {
                         Authorization: `Bearer ${userToken}`
                     }
+                }, {
+                    withCredentials: true
                 });
                 setUserInfo(response.data.data.user);
             } catch (error) {
@@ -42,6 +44,8 @@ const MyProfile = () => {
                 headers: {
                     Authorization: `Bearer ${userToken}`
                 }
+            }, {
+                withCredentials: true
             });
             console.log(response);
             alert("password changed");
@@ -64,7 +68,7 @@ const MyProfile = () => {
             console.log(response);
             dispatch(authActions.setToken(""));
             dispatch(authActions.setId(""));
-            dispatch(authActions.logout()); 
+            dispatch(authActions.logout());
         } catch (error) {
             console.error('Error logging out:', error);
         }
