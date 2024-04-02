@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
+import io from 'socket.io-client';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
 import MyProfile from './components/profile/MyProfile';
@@ -15,16 +16,16 @@ function App() {
       try {
         const response = await axios.post(
           'http://localhost:5000/api/refresh',
-          {},  
+          {},
           {
-              withCredentials: true,
-              headers: {
-                  "Content-Type": "application/json"
-              }
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json"
+            }
           }
-      );
-        dispatch(authActions.setToken(response.data.token)); 
-        dispatch(authActions.login()); 
+        );
+        dispatch(authActions.setToken(response.data.token));
+        dispatch(authActions.login());
         dispatch(authActions.setId(response.data.data.user._id));
       } catch (error) {
         if (error.response) {
@@ -42,11 +43,9 @@ function App() {
   return (
     <div className="App" style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       {!isLoggedIn && (
-        <div style={{ maxWidth: '400px', width: '100%', padding: '20px', border: '1px solid #ccc', borderRadius: '5px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <h2 style={{ marginBottom: '20px' }}>Sign up</h2>
+        <div style={{ maxWidth: '400px', width: '100%', padding: '20px', borderRadius: '5px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Signup />
-          <h2 style={{ margin: '20px 0' }}>Or</h2>
-          <h2>Login</h2>
+          <h2 style={{ margin: '20px 0' }}>OR....</h2>
           <Login />
         </div>
       )}

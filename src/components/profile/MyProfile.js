@@ -2,69 +2,56 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from '../../store';
+import Post from '../posts/Post';
+import AddPost from '../posts/AddPost';
+import { VStack, FormControl, FormLabel, Select, Button, Flex, Box, Heading, Avatar, Input } from '@chakra-ui/react';
+import io from 'socket.io-client';
 
 const MyProfile = () => {
     const dispatch = useDispatch();
-    const [userInfo, setUserInfo] = useState(null);
-    const [passwordFormData, setPasswordFormData] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmNewPassword: ''
-    });
+    const [posts, setPosts] = useState([]);
     const userId = useSelector((state) => state.auth.userId);
     const userToken = useSelector((state) => state.auth.userToken);
+    const [title, setTitle] = useState("");
+    const [author, setAuthor] = useState("");
+    const [genre, setGenre] = useState("");
+    const [fetchTrigger, setFetchTrigger] = useState(true);
+
+    useEffect(() => {
+        const socket = io('http://localhost:5000', { transports: ['websocket', 'polling', 'flashsocket'] });
+
+        socket.on('addBook', (book) => {
+            setPosts((prev) => [book, ...prev]);
+        })
+
+        return () => {
+            socket.disconnect();
+        }
+    }, []);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/users/${userId}`, {
+                const response = await axios.get(`http://localhost:5000/api/books?title=${title}&author=${author}&genre=${genre}`, {
                     headers: {
                         Authorization: `Bearer ${userToken}`
                     }
                 }, {
                     withCredentials: true
                 });
-                setUserInfo(response.data.data.user);
+                console.log(response);
+                setPosts(response.data.data.books);
             } catch (error) {
-                alert("Error fetching user information")
-                console.error('Error fetching user information:', error);
+                alert("Error fetching posts")
+                console.error('Error fetching posts:', error);
             }
         };
         fetchUserInfo();
-    }, [userId, userToken]);
-
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.patch(`http://localhost:5000/api/updatePassword`, {
-                passwordCurrent: passwordFormData.currentPassword,
-                password: passwordFormData.newPassword,
-                passwordConfirm: passwordFormData.confirmNewPassword
-            }, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`
-                }
-            }, {
-                withCredentials: true
-            });
-            console.log(response);
-            alert("password changed");
-        } catch (error) {
-            alert("error changing password");
-            console.error('Error changing password:', error);
-        }
-    };
-
-    const handleChange = (e) => {
-        setPasswordFormData({
-            ...passwordFormData,
-            [e.target.name]: e.target.value
-        });
-    };
+    }, [userId, userToken, fetchTrigger]);
 
     const handleLogout = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/logout', {},  
+            const response = await axios.post('http://localhost:5000/api/logout', {},
                 {
                     withCredentials: true,
                     headers: {
@@ -81,58 +68,93 @@ const MyProfile = () => {
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-            {userInfo ? (
-                <div>
-                    <h2 style={{ fontSize: "2rem", color: "#4CAF50", marginBottom: '20px' }}>My Profile</h2>
-                    <div style={{ marginBottom: '20px', padding: "20px", border: "1px solid #ccc", borderRadius: '5px' }}>
-                        <p>Name: {userInfo.name}</p>
-                        <p>Email: {userInfo.email}</p>
-                    </div>
-                    <div style={{ marginBottom: '20px', padding: "20px", border: "1px solid #ccc", borderRadius: '5px' }}>
-                        <h3 style={{ marginBottom: '10px' }}>Change Password</h3>
-                        <form onSubmit={handlePasswordChange}>
-                            <div style={{ marginBottom: '10px' }}>
-                                <label>Current Password:</label>
-                                <input
-                                    type="password"
-                                    name="currentPassword"
-                                    value={passwordFormData.currentPassword}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div style={{ marginBottom: '10px' }}>
-                                <label>New Password:</label>
-                                <input
-                                    type="password"
-                                    name="newPassword"
-                                    value={passwordFormData.newPassword}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div style={{ marginBottom: '10px' }}>
-                                <label>Confirm New Password:</label>
-                                <input
-                                    type="password"
-                                    name="confirmNewPassword"
-                                    value={passwordFormData.confirmNewPassword}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <button type="submit" style={{ padding: '10px 20px', borderRadius: '5px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}>Change Password</button>
-                        </form>
-                    </div>
-                    <button onClick={handleLogout} style={{
-                        position: 'fixed', bottom: '20px', right: '20px', padding: '10px 20px', borderRadius: '5px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: 'pointer'
-                    }}>Logout</button>
-                </div>
-            ) : (
-                <p>Loading...</p>
-            )}
-        </div>
+        <VStack width={"100%"} height={"100%"} overflow={"scroll"}>
+            <Flex padding={"5px"} height={"10%"} direction={{ base: 'column', md: 'row' }} boxShadow="lg" justify="space-between" w="80%" p={4} flexWrap="wrap">
+                <Box height={"100%"} flex="1" mb={{ base: 4, md: 0 }} mr={{ base: 0, md: 4 }}>
+                    <Avatar src="https://bit.ly/broken-link" size="md" />
+                </Box>
+
+                <Box height={"100%"} flex="1" mb={{ base: 4, md: 0 }} mr={{ base: 0, md: 4 }}>
+                    <FormControl>
+                        <Input
+                            type="text"
+                            name="title"
+                            value={title}
+                            onChange={(e) => { setTitle(e.target.value) }}
+                            placeholder="Search by Title"
+                            borderRadius="md"
+                            p={2}
+                            w="100%"
+                            border="1px solid #CBD5E0"
+                            _focus={{ border: "1px solid #38A169" }}
+                        />
+                    </FormControl>
+                </Box>
+
+                <Box height={"100%"} flex="1" mb={{ base: 4, md: 0 }} mr={{ base: 0, md: 4 }}>
+                    <FormControl>
+                        <Input
+                            type="text"
+                            name="author"
+                            value={author}
+                            onChange={(e) => { setAuthor(e.target.value) }}
+                            placeholder="Search by Author"
+                            borderRadius="md"
+                            p={2}
+                            w="100%"
+                            border="1px solid #CBD5E0"
+                            _focus={{ border: "1px solid #38A169" }}
+                        />
+                    </FormControl>
+                </Box>
+
+                <Box height={"100%"} flex="1" mb={{ base: 4, md: 0 }} mr={{ base: 0, md: 4 }}>
+                    <FormControl>
+                        <Select
+                            name="genre"
+                            value={genre}
+                            onChange={(e) => { setGenre(e.target.value) }}
+                            borderRadius="md"
+                            w="100%"
+                            border="1px solid #CBD5E0"
+                            _focus={{ border: "1px solid #38A169" }}
+                        >
+                            <option value="">All Genres</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Fiction">Fiction</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Classic">Classic</option>
+                        </Select>
+                    </FormControl>
+                </Box>
+
+                <Box height={"100%"} flex="1" alignSelf="flex-end" mt={{ base: 4, md: 0 }}>
+                    <Button p={2} onClick={() => setFetchTrigger(!fetchTrigger)} w="100%" bg="#38A169" color="white" _hover={{ bg: "#2C7A7B" }}>
+                        Search
+                    </Button>
+                </Box>
+            </Flex>
+            <Flex width={"100%"} height={"80%"}>
+                <Flex p={4} width={"40%"} >
+                    <AddPost />
+                </Flex>
+                <Box style={{ padding: '20px', width: "60%", overflow: "scroll", scrollbarWidth: "thin", scrollbarColor: "#6495ed #ffffff",}}>
+                    {posts.length > 0 ? (
+                        <Box>
+                            {posts.map((ele) => {
+                                return <Post key={ele._id} title={ele.title} author={ele.author} description={ele.description} genre={ele.genre} />
+                            })}
+                            <Button onClick={handleLogout} style={{
+                                position: 'fixed', bottom: '20px', right: '20px', padding: '10px 20px', borderRadius: '5px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: 'pointer'
+                            }}>Logout</Button>
+                        </Box>
+                    ) : (
+                        <Heading>No posts found</Heading>
+                    )}
+                </Box>
+            </Flex>
+        </VStack>
     );
 };
 

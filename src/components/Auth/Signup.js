@@ -55,7 +55,7 @@ function Signup() {
   };
 
   return (
-    <div style={{ textAlign: 'center', border:"1px solid", maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ textAlign: 'center', width: '500px',padding: "20px", margin: '0 auto',  boxShadow: "2px 2px 4px 1px grey"}}>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '15px' }}>
           <label>Name:</label>
@@ -64,7 +64,7 @@ function Signup() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            style={{ width: '100%', padding: '10px', borderRadius: '5px' }}
+            style={{ width: '100%', padding: '10px', border: "1px solid grey", borderRadius: '5px' }}
             required
           />
         </div>
@@ -75,7 +75,7 @@ function Signup() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            style={{ width: '100%', padding: '10px', borderRadius: '5px' }}
+            style={{ width: '100%', padding: '10px',border: "1px solid grey", borderRadius: '5px' }}
             required
           />
         </div>
@@ -86,7 +86,7 @@ function Signup() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            style={{ width: '100%', padding: '10px', borderRadius: '5px' }}
+            style={{ width: '100%', padding: '10px',border: "1px solid grey", borderRadius: '5px' }}
             required
           />
         </div>
@@ -97,7 +97,7 @@ function Signup() {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            style={{ width: '100%', padding: '10px', borderRadius: '5px' }}
+            style={{ width: '100%', padding: '10px',border: "1px solid grey", borderRadius: '5px' }}
             required
           />
         </div>
